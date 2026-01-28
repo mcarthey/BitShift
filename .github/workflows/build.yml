@@ -1,0 +1,106 @@
+name: Build MAUI Application
+
+on:
+  push:
+    branches: [ main, 'claude/**' ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+env:
+  DOTNET_VERSION: '10.0.x'
+  DOTNET_NOLOGO: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+
+jobs:
+  build-android:
+    name: Build Android
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: ${{ env.DOTNET_VERSION }}
+
+    - name: Install MAUI workload
+      run: dotnet workload install maui-android
+
+    - name: Restore dependencies
+      run: dotnet restore src/BitShift.csproj
+
+    - name: Build Android
+      run: dotnet build src/BitShift.csproj -c Release -f net10.0-android --no-restore
+
+    - name: Upload Android artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: android-build
+        path: src/bin/Release/net10.0-android/
+        retention-days: 7
+
+  build-ios:
+    name: Build iOS
+    runs-on: macos-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: ${{ env.DOTNET_VERSION }}
+
+    - name: Install MAUI workloads
+      run: dotnet workload install maui
+
+    - name: Restore dependencies
+      run: dotnet restore src/BitShift.csproj
+
+    - name: Build iOS
+      run: dotnet build src/BitShift.csproj -c Release -f net10.0-ios --no-restore
+
+    - name: Build macOS Catalyst
+      run: dotnet build src/BitShift.csproj -c Release -f net10.0-maccatalyst --no-restore
+
+    - name: Upload iOS artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: ios-build
+        path: |
+          src/bin/Release/net10.0-ios/
+          src/bin/Release/net10.0-maccatalyst/
+        retention-days: 7
+
+  build-windows:
+    name: Build Windows
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: ${{ env.DOTNET_VERSION }}
+
+    - name: Install MAUI workload
+      run: dotnet workload install maui-windows
+
+    - name: Restore dependencies
+      run: dotnet restore src/BitShift.csproj
+
+    - name: Build Windows
+      run: dotnet build src/BitShift.csproj -c Release -f net10.0-windows10.0.19041.0 --no-restore
+
+    - name: Upload Windows artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: windows-build
+        path: src/bin/Release/net10.0-windows10.0.19041.0/
+        retention-days: 7
