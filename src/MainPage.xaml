@@ -11,7 +11,7 @@
         <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Margin="0,20,0,30">
             <StackLayout VerticalOptions="Center">
                 <Label Text="BitShift" FontSize="40" FontAttributes="Bold" TextColor="#776E65"/>
-                <Label Text="Merge tiles using binary logic" FontSize="14" TextColor="#9E9E9E"/>
+                <Label Text="Swipe to merge, tap to select, shift to transform" FontSize="12" TextColor="#9E9E9E"/>
             </StackLayout>
             
             <Frame Grid.Column="1" 
@@ -39,23 +39,33 @@
         </Frame>
 
         <!-- Controls -->
-        <Grid Grid.Row="2" ColumnDefinitions="*,*" ColumnSpacing="10" Margin="0,20,0,0">
-            <Button Grid.Column="0" 
-                    Text="New Game" 
+        <Grid Grid.Row="2" ColumnDefinitions="*,*,*" ColumnSpacing="10" Margin="0,20,0,0">
+            <Button Grid.Column="0"
+                    Text="New Game"
                     BackgroundColor="#8F7A66"
                     TextColor="White"
                     FontAttributes="Bold"
                     CornerRadius="5"
                     Clicked="OnNewGameClicked"/>
-            
-            <Button Grid.Column="1" 
-                    x:Name="OperatorButton"
-                    Text="<< Left Shift" 
-                    BackgroundColor="#EDC22E"
+
+            <Button Grid.Column="1"
+                    x:Name="LeftShiftButton"
+                    Text="&lt;&lt; x2"
+                    BackgroundColor="#4CAF50"
                     TextColor="White"
                     FontAttributes="Bold"
                     CornerRadius="5"
-                    Clicked="OnOperatorClicked"
+                    Clicked="OnLeftShiftClicked"
+                    IsEnabled="False"/>
+
+            <Button Grid.Column="2"
+                    x:Name="RightShiftButton"
+                    Text=">> /2"
+                    BackgroundColor="#2196F3"
+                    TextColor="White"
+                    FontAttributes="Bold"
+                    CornerRadius="5"
+                    Clicked="OnRightShiftClicked"
                     IsEnabled="False"/>
         </Grid>
 
