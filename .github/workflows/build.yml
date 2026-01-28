@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
 
 env:
-  DOTNET_VERSION: '10.0.x'
+  DOTNET_VERSION: '8.0.x'
   DOTNET_NOLOGO: true
   DOTNET_CLI_TELEMETRY_OPTOUT: true
 
@@ -33,17 +33,17 @@ jobs:
       run: dotnet restore src/BitShift.csproj
 
     - name: Build Android
-      run: dotnet build src/BitShift.csproj -c Release -f net10.0-android --no-restore
+      run: dotnet build src/BitShift.csproj -c Release -f net8.0-android --no-restore
 
     - name: Upload Android artifacts
       uses: actions/upload-artifact@v4
       with:
         name: android-build
-        path: src/bin/Release/net10.0-android/
+        path: src/bin/Release/net8.0-android/
         retention-days: 7
 
   build-ios:
-    name: Build iOS
+    name: Build iOS & macOS
     runs-on: macos-latest
 
     steps:
@@ -62,18 +62,18 @@ jobs:
       run: dotnet restore src/BitShift.csproj
 
     - name: Build iOS
-      run: dotnet build src/BitShift.csproj -c Release -f net10.0-ios --no-restore
+      run: dotnet build src/BitShift.csproj -c Release -f net8.0-ios --no-restore
 
     - name: Build macOS Catalyst
-      run: dotnet build src/BitShift.csproj -c Release -f net10.0-maccatalyst --no-restore
+      run: dotnet build src/BitShift.csproj -c Release -f net8.0-maccatalyst --no-restore
 
     - name: Upload iOS artifacts
       uses: actions/upload-artifact@v4
       with:
-        name: ios-build
+        name: ios-macos-build
         path: |
-          src/bin/Release/net10.0-ios/
-          src/bin/Release/net10.0-maccatalyst/
+          src/bin/Release/net8.0-ios/
+          src/bin/Release/net8.0-maccatalyst/
         retention-days: 7
 
   build-windows:
@@ -96,11 +96,11 @@ jobs:
       run: dotnet restore src/BitShift.csproj
 
     - name: Build Windows
-      run: dotnet build src/BitShift.csproj -c Release -f net10.0-windows10.0.19041.0 --no-restore
+      run: dotnet build src/BitShift.csproj -c Release -f net8.0-windows10.0.19041.0 --no-restore
 
     - name: Upload Windows artifacts
       uses: actions/upload-artifact@v4
       with:
         name: windows-build
-        path: src/bin/Release/net10.0-windows10.0.19041.0/
+        path: src/bin/Release/net8.0-windows10.0.19041.0/
         retention-days: 7
