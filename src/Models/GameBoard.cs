@@ -3,11 +3,20 @@ namespace BitShift.Models;
 public class GameBoard
 {
     private const int GridSize = 4;
+    private const int MaxTileValue = 2048;
+    private const int MinTileValue = 2;
     private GameTile?[,] _grid;
     private Random _random;
-    
+
     public int Score { get; private set; }
     public bool GameOver { get; private set; }
+
+    // Tile selection for operator application
+    public (int Row, int Col)? SelectedTile { get; private set; }
+
+    // Cooldown system for operators
+    public DateTime LastOperatorUse { get; private set; } = DateTime.MinValue;
+    public TimeSpan OperatorCooldown { get; } = TimeSpan.FromSeconds(5);
 
     public GameBoard()
     {
@@ -300,6 +309,103 @@ public class GameBoard
         }
 
         GameOver = true;
+    }
+
+    /// <summary>
+    /// Selects a tile at the given position for operator application.
+    /// Returns true if a tile exists at the position.
+    /// </summary>
+    public bool SelectTile(int row, int col)
+    {
+        if (row < 0 || row >= GridSize || col < 0 || col >= GridSize)
+            return false;
+
+        if (_grid[row, col] == null)
+        {
+            SelectedTile = null;
+            return false;
+        }
+
+        SelectedTile = (row, col);
+        return true;
+    }
+
+    /// <summary>
+    /// Clears the current tile selection.
+    /// </summary>
+    public void ClearSelection()
+    {
+        SelectedTile = null;
+    }
+
+    /// <summary>
+    /// Checks if an operator can be used (cooldown elapsed).
+    /// </summary>
+    public bool CanUseOperator()
+    {
+        return DateTime.Now - LastOperatorUse >= OperatorCooldown;
+    }
+
+    /// <summary>
+    /// Returns remaining cooldown time in seconds.
+    /// </summary>
+    public double GetCooldownRemaining()
+    {
+        var elapsed = DateTime.Now - LastOperatorUse;
+        var remaining = OperatorCooldown - elapsed;
+        return remaining.TotalSeconds > 0 ? remaining.TotalSeconds : 0;
+    }
+
+    /// <summary>
+    /// Applies left shift (<<) to the selected tile.
+    /// Doubles the tile value. Returns false if at max or no selection.
+    /// </summary>
+    public bool ApplyLeftShift()
+    {
+        if (!SelectedTile.HasValue || !CanUseOperator())
+            return false;
+
+        var (row, col) = SelectedTile.Value;
+        var tile = _grid[row, col];
+
+        if (tile == null || tile.Value >= MaxTileValue)
+            return false;
+
+        // Left shift = multiply by 2
+        tile.Value <<= 1;
+        tile.IsMerged = true; // Trigger animation
+        LastOperatorUse = DateTime.Now;
+        ClearSelection();
+
+        // Award points for the shift (half the new value)
+        Score += tile.Value / 2;
+
+        CheckGameOver();
+        return true;
+    }
+
+    /// <summary>
+    /// Applies right shift (>>) to the selected tile.
+    /// Halves the tile value. Returns false if at min or no selection.
+    /// </summary>
+    public bool ApplyRightShift()
+    {
+        if (!SelectedTile.HasValue || !CanUseOperator())
+            return false;
+
+        var (row, col) = SelectedTile.Value;
+        var tile = _grid[row, col];
+
+        if (tile == null || tile.Value <= MinTileValue)
+            return false;
+
+        // Right shift = divide by 2
+        tile.Value >>= 1;
+        tile.IsMerged = true; // Trigger animation
+        LastOperatorUse = DateTime.Now;
+        ClearSelection();
+
+        return true;
     }
 }
 
